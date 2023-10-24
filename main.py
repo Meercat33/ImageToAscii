@@ -8,10 +8,17 @@
 
 from PIL import Image, ImageEnhance
 import numpy as np
+from sys import argv
 
-chars = "$$$$$@@@@@BBBBB%%%%%dddddpppppqqqqqwwwwwmmmmmJJJJJUUUUUYYYYYXXXXXzzzzzcccccvvvvvuuuuuxxxxxrrrrrjjjjjfffffttttt/////\\\\\\\\\\|||||((((()))))11111{{{{{}}}}}[[[[[]]]]]?????-----_____+++++~~~~~<<<<<>>>>>iiiii!!!!!lllllIIIII;;;;;:::::,,,,,\"\"\"\"\"^^^^^`````'''''......"
+chars = "$@B%dpqwmJUYXzcvuxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'."
 chars = chars[::-1]
 
+
+def normalize(original_value, orig_min, orig_max, new_min, new_max):
+    new_value = (original_value - orig_min) / (orig_max - orig_min)
+    new_value *= (new_max - new_min)
+    new_value += new_min
+    return round(new_value)
 
 def center_crop(img, new_width=None, new_height=None):
     width = img.shape[1]
@@ -36,7 +43,8 @@ def center_crop(img, new_width=None, new_height=None):
 
     return center_cropped_img
 
-img = Image.open("tester3.jpg")
+
+img = Image.open(argv[1])
 imgArr = np.asarray(img)
 bwArr = np.zeros((len(imgArr), len(imgArr[0]), 3), dtype="uint8")
 
@@ -70,10 +78,10 @@ for i in range(0, len(centerBwArr)):
         try:
             pixel = centerBwArr[i, j]
             brightness = pixel[0]
-            line += chars[brightness]
+            line += chars[normalize(brightness, 0, 255, 0, len(chars) - 1)]
         except Exception as e:
             print(e)
-            print(brightness)
+            print(normalize(brightness, 0, 255, 0, len(chars) - 1))
     final.append(line)
 
 final = "\n".join(final)
